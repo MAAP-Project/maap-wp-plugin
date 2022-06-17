@@ -64,12 +64,13 @@ function maap_adminpages_load()
     add_action('wp_enqueue_scripts', 'maap_admin_enqueue_scripts', 10 );
     add_action('wp_ajax_users_endpoint', 'users_endpoint'); 
     add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint'); 
+    add_filter('template_include', 'profile_page_template', 99 );
 }
 
 function maap_adminpages_add()
 {
-    add_menu_page('MAAP Admin', 'MAAP Admin', 'manage_options', 'maap-admin', 'maap_admin_callback', 'dashicons-admin-site', 20);
-    add_submenu_page('maap-admin', 'MAAP Pre-Approved Emails', 'Pre-Approved', 'manage_options', 'maap-pre-approved', 'maap_admin_preappoved_callback');
+    add_menu_page('MAAP Admin', 'Users', 'manage_options', 'maap-admin', 'maap_admin_callback', 'dashicons-admin-site', 20);
+    add_submenu_page('maap-admin', 'MAAP Pre-Approved Emails', 'Pre-Approved Emails', 'manage_options', 'maap-pre-approved', 'maap_admin_preappoved_callback');
 }
 
 function maap_admin_callback()
@@ -80,6 +81,17 @@ function maap_admin_callback()
 function maap_admin_preappoved_callback()
 {
     include __DIR__.'/views/pre-approved.php';
+}
+
+function profile_page_template( $template ) {
+
+    if ( strpos($_SERVER['REQUEST_URI'], '/profile/') !== false) {
+        $new_template = __DIR__.'/views/public/profile.php';
+        if ( '' != $new_template ) {
+            return $new_template ;
+        }
+    }
+    return $template;
 }
 
 ?>
