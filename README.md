@@ -1,6 +1,6 @@
 # MAAP WordPress Plugin
 
-This WordPress plugin adds add MAAP member API integration to a WordPress site. To install this plugin, copy the contents of this repository into a new "maap" folder inside the `wp-content/plugins` directory.
+This WordPress plugin adds MAAP member API integration to a WordPress site. To install this plugin, copy the contents of this repository into a new "maap" folder inside the `wp-content/plugins` directory.
 
 ## WP Admin Pages
 Once installed, a "MAAP Admin" section will appear in the WP Admin site allowing user status and pre-approved email management.
