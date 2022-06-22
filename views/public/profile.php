@@ -105,7 +105,7 @@ curl_close($ch);
     <main id="genesis-content" class="content">
 
         <div class="entry-content" itemprop="text">
-            <?php if ($_SESSION['maap-profile']) { ?>
+            <?php if ($pgt) { ?>
                 <form name="file_up" id="file_up" action="" method="POST" enctype="multipart/form-data">
                     
                     <h1>Profile</h1>
