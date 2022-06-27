@@ -6,13 +6,53 @@ Plugin Name: MAAP
  
 Plugin URI: https://github.com/MAAP-Project/maap-wp-plugin
  
-Description: Plugin to add MAAP member API integration.
+Description: Plugin to add MAAP member API integration and login hook
  
 Version: 1.0
  
 Author: Brian Satorius & Anil Natha
  
  */
+
+function maap_login( $user_login, $user ) {
+    //debug_wp_session();
+    
+    $maap_pgt_cookie = 'wp_maap_pgt';
+
+    if(isset($_COOKIE[$maap_pgt_cookie])) {
+        unset($_COOKIE[$maap_pgt_cookie]);
+    }
+    
+    setcookie(
+        $maap_pgt_cookie,
+        $_SESSION['phpCAS']['pgt'],
+        time()+constant("MAX_SESSION_DURATION")
+    );
+}
+
+function debug_wp_session() {
+    echo '$_COOKIE: <pre>';
+    echo var_dump($_COOKIE);
+    echo "</pre>";
+
+    echo '$_SESSION: <pre>';
+    echo var_dump($_SESSION);
+    echo "</pre>";
+
+    echo '$_SESSION COOKIE INFO:';
+    echo "<pre>";
+    echo 'session_name(): ' . session_name() . "\n";
+    echo 'session_id(): ' . session_id() . "\n";
+    echo "</pre>";
+
+    $proxyTicketDec = $_SESSION['phpCAS']['pgt'];
+
+    echo 'proxyTicketDec: ' . $proxyTicketDec . "\n";
+
+    exit();
+    die();
+    flush();
+}
 
 function maap_admin_enqueue_scripts() {
     wp_enqueue_style('jquery-datatables-css','//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css');
@@ -57,9 +97,13 @@ function maap_admin_ajax_endpoint($endpoint){
         return $response;
 }
 
-add_action('plugins_loaded', 'maap_adminpages_load');
-function maap_adminpages_load()
+add_action('plugins_loaded', 'maap_plugin_load');
+function maap_plugin_load()
 {
+    // Hook into login chain to initialize cookie upon successful login
+    add_action('wp_login', 'maap_login', 10, 2);
+
+    // Hooks to display Administrative pages in Wordpress Dashboard
     add_action('admin_menu', 'maap_adminpages_add');
     add_action('wp_enqueue_scripts', 'maap_admin_enqueue_scripts', 10 );
     add_action('wp_ajax_users_endpoint', 'users_endpoint'); 
