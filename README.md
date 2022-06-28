@@ -5,7 +5,7 @@ This WordPress plugin adds MAAP member API integration to a WordPress site. To i
 ## WP Admin Pages
 Once installed, a "MAAP Admin" section will appear in the WP Admin site allowing user status and pre-approved email management.
 
-![Screen Shot 2022-06-17 at 12 52 10 PM](https://user-images.githubusercontent.com/27687558/174392683-951776b3-4bff-4357-8527-52961fd7c38d.png)
+![Screen Shot 2022-06-28 at 16 46 23](https://user-images.githubusercontent.com/931107/176323329-126a2a45-2588-487d-823d-78cf44c92130.png)
 
 ## Custom Profile Page
 
