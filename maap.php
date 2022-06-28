@@ -15,19 +15,45 @@ Author: Brian Satorius & Anil Natha
  */
 
 function maap_login( $user_login, $user ) {
+
+    // Uncomment the following line to inspect cookie and session information
+    // upon login
     //debug_wp_session();
-    
+
+    $cookie_exp = time()+constant("MAX_SESSION_DURATION");
+
+    // ========================================
+    // Set PGT Cookie
+
     $maap_pgt_cookie = 'wp_maap_pgt';
 
     if(isset($_COOKIE[$maap_pgt_cookie])) {
         unset($_COOKIE[$maap_pgt_cookie]);
     }
-    
+
     setcookie(
         $maap_pgt_cookie,
         $_SESSION['phpCAS']['pgt'],
-        time()+constant("MAX_SESSION_DURATION")
+        $cookie_exp
     );
+
+    // ========================================
+    // Set ClientName Cookie
+
+    $maap_client_name_cookie = 'wp_maap_client_name';
+
+    if(isset($_COOKIE[$maap_client_name_cookie])) {
+        unset($_COOKIE[$maap_client_name_cookie]);
+    }
+
+    $client_name = array_key_exists('iss', $_SESSION['phpCAS']['attributes']) ? 'GLUU' : 'URS';
+
+    setcookie(
+        $maap_client_name_cookie,
+        $client_name,
+        $cookie_exp
+    );
+
 }
 
 function debug_wp_session() {
