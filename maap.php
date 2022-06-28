@@ -18,7 +18,7 @@ function maap_login( $user_login, $user ) {
 
     // Uncomment the following line to inspect cookie and session information
     // upon login
-    //debug_wp_session();
+    //maap_debug_wp_session();
 
     $cookie_exp = time()+constant("MAX_SESSION_DURATION");
 
@@ -56,7 +56,7 @@ function maap_login( $user_login, $user ) {
 
 }
 
-function debug_wp_session() {
+function maap_debug_wp_session() {
     echo '$_COOKIE: <pre>';
     echo var_dump($_COOKIE);
     echo "</pre>";
@@ -130,20 +130,21 @@ function maap_plugin_load()
     add_action('wp_login', 'maap_login', 10, 2);
 
     // Hooks to display Administrative pages in Wordpress Dashboard
-    add_action('admin_menu', 'maap_adminpages_add');
+    add_action('admin_menu', 'maap_admin_menu_pages');
     add_action('wp_enqueue_scripts', 'maap_admin_enqueue_scripts', 10 );
     add_action('wp_ajax_users_endpoint', 'users_endpoint'); 
     add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint'); 
     add_filter('template_include', 'profile_page_template', 99 );
 }
 
-function maap_adminpages_add()
+function maap_admin_menu_pages()
 {
-    add_menu_page('MAAP Admin', 'Users', 'manage_options', 'maap-admin', 'maap_admin_callback', 'dashicons-admin-site', 20);
+    add_menu_page('MAAP Admin', 'MAAP Admin', 'manage_options', 'maap-admin', 'maap_admin_users_callback', 'dashicons-admin-site', 20);
+    add_submenu_page('maap-admin', 'MAAP Users', 'Users', 'manage_options', 'maap-admin', 'maap-maap_admin_users_callback');
     add_submenu_page('maap-admin', 'MAAP Pre-Approved Emails', 'Pre-Approved Emails', 'manage_options', 'maap-pre-approved', 'maap_admin_preappoved_callback');
 }
 
-function maap_admin_callback()
+function maap_admin_users_callback()
 {
     include __DIR__.'/views/users.php';
 }
