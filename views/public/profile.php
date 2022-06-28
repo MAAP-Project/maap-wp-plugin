@@ -19,8 +19,13 @@ $maap_pgt_cookie = 'wp_maap_pgt';
 $pgt = $_COOKIE[$maap_pgt_cookie];
 
 $wp_maap_client_name = 'wp_maap_client_name';
-$client = $_COOKIE[$wp_maap_client_name];
-$client_name = strtoupper($client) == "URS" ? "EarthData (URS)" : "ESA (Gluu)";
+$client = $_COOKIE[$wp_maap_client_name] ? $_COOKIE[$wp_maap_client_name] : "UNKNOWN";
+$client_name = "Unknown";
+if( strtoupper($client) == "URS" ) {
+    $client_name = "EarthData (URS)";
+} elseif ( strtoupper($client) == "GLUU" ) {
+    $client_name = "ESA (Gluu)";
+}
 
 // Set API variables
 $maap_api = 'api.' . str_replace("www.", "", $_SERVER['HTTP_HOST']);
@@ -148,6 +153,7 @@ curl_close($ch);
                         ?>
                     </table>
 
+                    <?php if( $client != "UNKNOWN") { ?>
                     <div class="wp-block-atomic-blocks-ab-accordion ab-block-accordion">
                         <details>
                             <summary class="ab-accordion-title">Updating your account information</summary>
@@ -177,6 +183,7 @@ curl_close($ch);
                             </div>
                         </details>
                     </div>
+                    <?php } ?>
                     
                     <h3>Public SSH Key</h3>
                     <div>Your public SSH key allows you to establish a secure connection between your computer and your MAAP workspaces. To add an SSH key, you need to generate one or use and existing key.</div>
