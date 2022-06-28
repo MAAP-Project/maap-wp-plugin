@@ -14,8 +14,15 @@
 
 <?php
 
+// Get information from cookies
 $maap_pgt_cookie = 'wp_maap_pgt';
 $pgt = $_COOKIE[$maap_pgt_cookie];
+
+$wp_maap_client_name = 'wp_maap_client_name';
+$client = $_COOKIE[$wp_maap_client_name];
+$client_name = strtoupper($client) == "URS" ? "EarthData (URS)" : "ESA (Gluu)";
+
+// Set API variables
 $maap_api = 'api.' . str_replace("www.", "", $_SERVER['HTTP_HOST']);
 $maap_api_profile = 'https://'. $maap_api . '/api/members/self';
 $maap_api_sshKey = $maap_api_profile . '/sshKey';
@@ -122,14 +129,6 @@ curl_close($ch);
                                 $status_html = '<div class="success-text"><i aria-hidden="true" data-hidden="true" class="fa fa-check-circle icon-size-lg icon-margin-right"></i> <strong>Active</strong></div><div>If you have questions about your account, send an email to <a href="mailto:support@maap-project.org">support@maap-project.org</a>.</div>';
                             }
 
-                            //Set Client Name
-                            $client_name = "";
-                            if( strtoupper($_SESSION['maap-profile']['clientName']) === "MAAPAUTH" ) {
-                                $client_name = "EarthData (URS)";
-                            } elseif ( strtoupper($_SESSION['maap-profile']['clientName']) === "ESA" ) {
-                                $client_name = "ESA (Gluu)";
-                            }
-
                             // Save profile information
                             $user_fields = array(
                                 array("Name", $first_name . " " . $last_name, ""),
@@ -138,7 +137,7 @@ curl_close($ch);
                                 array("Account Service", $client_name, "The authentication service your account is linked to."),
                                 array("MAAP Account Status", $status_html, "")
                             );
-                                                  
+
                             foreach( $user_fields as $user_field ) {
                                 echo '<tr>';
                                 echo '<td>' . ($user_field[2] != "" ? '<span title="' . $user_field[2] . '">' : "" ) . $user_field[0] . '</span></td>';
@@ -157,14 +156,14 @@ curl_close($ch);
                                 <?php
 
                                     $profile_url = "";
-                                    if( strtoupper($_SESSION['maap-profile']['clientName']) === "MAAPAUTH" ) {
+                                    if( strtoupper($client) === "URS" ) {
 
                                         $profile_url = "https://urs.earthdata.nasa.gov"; // UAT and OPS environment
                                         if( $_SERVER['SERVER_NAME'] == 'dit.maap-project.org' ) {
                                             $profile_url = "https://uat.urs.earthdata.nasa.gov"; // DIT environment
                                         }
 
-                                    } elseif ( strtoupper($_SESSION['maap-profile']['clientName']) === "ESA" ) {
+                                    } elseif ( strtoupper($client) === "GLUU" ) {
 
                                         // Only one environment for ESA at the moment
                                         $profile_url = "https://iam.val.esa-maap.org";
