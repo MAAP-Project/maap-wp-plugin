@@ -140,7 +140,7 @@ function maap_plugin_load()
 function maap_admin_menu_pages()
 {
     add_menu_page('MAAP Admin', 'MAAP Admin', 'manage_options', 'maap-admin', 'maap_admin_users_callback', 'dashicons-admin-site', 20);
-    add_submenu_page('maap-admin', 'MAAP Users', 'Users', 'manage_options', 'maap-admin', 'maap-maap_admin_users_callback');
+    add_submenu_page('maap-admin', 'MAAP Users', 'Users', 'manage_options', 'maap-admin', 'maap_admin_users_callback');
     add_submenu_page('maap-admin', 'MAAP Pre-Approved Emails', 'Pre-Approved Emails', 'manage_options', 'maap-pre-approved', 'maap_admin_preappoved_callback');
 }
 
