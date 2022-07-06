@@ -14,6 +14,34 @@ Author: Brian Satorius & Anil Natha
  
  */
 
+################################################################################
+// Define Session Duration (WP session duration default is 48 hrs/2 days)
+
+define( 'MAX_SESSION_DURATION', 24*60*60); // value should be in seconds
+
+################################################################################
+/**
+ * Create a session so that when authn/authz occurs, it can be used to store CAS information
+ */
+
+if (!session_id()) {
+    session_start();
+}
+
+################################################################################
+
+function my_expiration_filter($seconds, $user_id, $remember){
+
+    //http://en.wikipedia.org/wiki/Year_2038_problem
+    if ( PHP_INT_MAX - time() < constant("MAX_SESSION_DURATION") ) {
+        //Fix to a little bit earlier!
+        return(PHP_INT_MAX - time() - 5);
+    }
+    
+    return constant("MAX_SESSION_DURATION");
+
+}
+
 function maap_login( $user_login, $user ) {
 
     // Uncomment the following line to inspect cookie and session information
@@ -127,6 +155,7 @@ add_action('plugins_loaded', 'maap_plugin_load');
 function maap_plugin_load()
 {
     // Hook into login chain to initialize cookie upon successful login
+    add_filter('auth_cookie_expiration', 'my_expiration_filter', 99, 3);
     add_action('wp_login', 'maap_login', 10, 2);
 
     // Hooks to display Administrative pages in Wordpress Dashboard
