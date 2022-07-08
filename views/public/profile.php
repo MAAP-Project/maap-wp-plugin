@@ -135,19 +135,22 @@ curl_close($ch);
                             }
 
                             // Save profile information
+                            $isUrs = ( strtoupper($client) == "URS" );
                             $user_fields = array(
-                                array("Name", $first_name . " " . $last_name, ""),
-                                array("Username", $username, ""),
-                                array("Email", $email, ""),
-                                array("Account Service", $client_name, "The authentication service your account is linked to."),
-                                array("MAAP Account Status", $status_html, "")
+                                array("Name", $first_name . " " . $last_name, "", $isUrs),
+                                array("Username", $username, "", $isUrs),
+                                array("Email", $email, "", $isUrs),
+                                array("Account Service", $client_name, "The authentication service your account is linked to.", True),
+                                array("MAAP Account Status", $status_html, "", $isUrs)
                             );
 
                             foreach( $user_fields as $user_field ) {
-                                echo '<tr>';
-                                echo '<td>' . ($user_field[2] != "" ? '<span title="' . $user_field[2] . '">' : "" ) . $user_field[0] . '</span></td>';
-                                echo '<td>' . $user_field[1] . '</td>';
-                                echo '</tr>';
+                                if( $user_field[3] ) {
+                                    echo '<tr>';
+                                    echo '<td>' . ($user_field[2] != "" ? '<span title="' . $user_field[2] . '">' : "" ) . $user_field[0] . '</span></td>';
+                                    echo '<td>' . $user_field[1] . '</td>';
+                                    echo '</tr>';
+                                }
                             }
                             
                         ?>
