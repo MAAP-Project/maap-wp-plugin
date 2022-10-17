@@ -47,32 +47,34 @@ if(pgt) {
             cache:false,
         },
         columns: [
-            {                 
-	            render: function (data, type, row) {
-                    return row.first_name + ' ' + row.last_name;
-                } 
-            },
-            { 
-                data: 'username' 
-            },
-            { 
-                data: 'email' 
-            },
-		    {
-			    render: function (data, type, row) {
-				    return '<a class="membersts" style="cursor: pointer">' + row.status + '</a>';
-			    }
-            },			    
-            { 
-                data: 'creation_date', render: function (data) {
-			   var date = new Date(data);
-			   var month = date.getMonth() + 1;
-			   return date.getFullYear() + "-" + (month.toString().length > 1 ? month : "0" + month) + "-" + date.getDate() ;
-			    } 
-            },
-        ],
-        pageLength: 25
-    }); 
+			{
+				render: function (data, type, row) {
+					return row.first_name + ' ' + row.last_name;
+				}
+			},
+			{
+				data: 'username'
+			},
+			{
+				data: 'email'
+			},
+			{
+				render: function (data, type, row) {
+					return '<a class="membersts" style="cursor: pointer">' + row.status + '</a>';
+				}
+			},
+			{
+				data: 'creation_date',
+				render: function (data) {
+					var date = new Date(data);
+					var month = date.getMonth() + 1;
+					var day = date.getDate();
+					return date.getFullYear() + "-" + (month.toString().length > 1 ? month : "0" + month) + "-" + (day.toString().length > 1 ? day : "0" + day);
+				}
+			},
+		],
+		pageLength: 25
+	}); 
 
     $('#maapusers tbody').on('click', 'a', function () {
 	    var data = dt.row($(this).parents('tr')).data();
@@ -105,4 +107,3 @@ if(pgt) {
 
 </script>
 </div>
-
