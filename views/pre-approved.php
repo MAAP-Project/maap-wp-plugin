@@ -5,7 +5,7 @@
 $maap_pgt_cookie = 'wp_maap_pgt';
 $pgt = $_COOKIE[$maap_pgt_cookie];
 $maap_api = 'api.' . str_replace("www.", "", $_SERVER['HTTP_HOST']);
-$maap_api_preapproved = 'https://'. $maap_api . '/api/members/pre-approved';
+$maap_api_preapproved = 'https://'. $maap_api . '/api/admin/pre-approved';
 
 ?>
 

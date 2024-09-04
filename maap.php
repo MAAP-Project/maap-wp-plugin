@@ -31,15 +31,7 @@ if (!session_id()) {
 ################################################################################
 
 function my_expiration_filter($seconds, $user_id, $remember){
-
-    //http://en.wikipedia.org/wiki/Year_2038_problem
-    if ( PHP_INT_MAX - time() < constant("MAX_SESSION_DURATION") ) {
-        //Fix to a little bit earlier!
-        return(PHP_INT_MAX - time() - 5);
-    }
-    
     return constant("MAX_SESSION_DURATION");
-
 }
 
 function maap_login( $user_login, $user ) {
@@ -118,8 +110,18 @@ function users_endpoint(){
     wp_send_json($response);
 }
 
+function orgs_endpoint(){
+    $response = maap_admin_ajax_endpoint('organizations');
+    wp_send_json($response);
+}
+
+function queues_endpoint(){
+    $response = maap_admin_ajax_endpoint('admin/job-queues');
+    wp_send_json($response);
+}
+
 function pre_approved_endpoint(){
-    $response = maap_admin_ajax_endpoint('members/pre-approved');
+    $response = maap_admin_ajax_endpoint('admin/pre-approved');
     wp_send_json($response);
 }
 
@@ -162,6 +164,8 @@ function maap_plugin_load()
     add_action('admin_menu', 'maap_admin_menu_pages');
     add_action('wp_enqueue_scripts', 'maap_admin_enqueue_scripts', 10 );
     add_action('wp_ajax_users_endpoint', 'users_endpoint'); 
+    add_action('wp_ajax_orgs_endpoint', 'orgs_endpoint'); 
+    add_action('wp_ajax_queues_endpoint', 'queues_endpoint'); 
     add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint'); 
     add_filter('template_include', 'profile_page_template', 99 );
 }
@@ -170,12 +174,24 @@ function maap_admin_menu_pages()
 {
     add_menu_page('MAAP Admin', 'MAAP Admin', 'manage_options', 'maap-admin', 'maap_admin_users_callback', 'dashicons-admin-site', 20);
     add_submenu_page('maap-admin', 'MAAP Users', 'Users', 'manage_options', 'maap-admin', 'maap_admin_users_callback');
+    add_submenu_page('maap-admin', 'MAAP Orgs', 'Organizations', 'manage_options', 'maap-orgs', 'maap_admin_orgs_callback');
+    add_submenu_page('maap-admin', 'MAAP Queues', 'Job Queues', 'manage_options', 'maap-queues', 'maap_admin_queues_callback');
     add_submenu_page('maap-admin', 'MAAP Pre-Approved Emails', 'Pre-Approved Emails', 'manage_options', 'maap-pre-approved', 'maap_admin_preappoved_callback');
 }
 
 function maap_admin_users_callback()
 {
     include __DIR__.'/views/users.php';
+}
+
+function maap_admin_orgs_callback()
+{
+    include __DIR__.'/views/orgs.php';
+}
+
+function maap_admin_queues_callback()
+{
+    include __DIR__.'/views/queues.php';
 }
 
 function maap_admin_preappoved_callback()
