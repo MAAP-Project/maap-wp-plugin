@@ -42,7 +42,9 @@ select[name="maapusers_length"] {
 	<th>Name</th>
 	<th>Description</th>
 	<th>Orgs</th>
+	<th>Default?</th>
 	<th>Public?</th>
+	<th>Max Minutes</th>
 	<th>Status</th>
     <th>Created</th>
     </thead>
@@ -140,9 +142,21 @@ if(pgt) {
                     className: 'detail-font'
                 },
                 {
+                    data: 'is_default',
+                    render: function (data) {
+                        return data ? 'Yes' : 'No'
+                    }
+                },
+                {
                     data: 'guest_tier',
                     render: function (data) {
                         return data ? 'Yes' : 'No'
+                    }
+                },
+                {
+                    data: 'time_limit_minutes',
+                    render: function (data) {
+                        return data ? data : 'Unlimited'
                     }
                 },
                 {
@@ -245,8 +259,12 @@ if(pgt) {
                 $("#btnSaveOrg").text('Save Changes');
             }
 
+            if(selected_item_edit.time_limit_minutes)
+                $('#jobTimeLimit').val(selected_item_edit.time_limit_minutes);
+
             $('#queue_description_tb').val(selected_item_edit.queue_description);
             $('#customSwitch1').prop("checked", selected_item_edit.guest_tier);
+            $('#defaultQueue').prop("checked", selected_item_edit.is_default);
 
             for(var i = 0; i < selected_item_edit.orgs.length; i++) {
                 var _mem = selected_item_edit.orgs[i];
@@ -275,7 +293,9 @@ if(pgt) {
         if(all_fields) {
             $('#queue_description_tb').val('');
             $('#customSwitch1').prop("checked", false);
+            $('#defaultQueue').prop("checked", false);
             $('#selected_item_options_display').empty();
+            $('#jobTimeLimit').val('');
         }
     }  
 
@@ -283,6 +303,8 @@ if(pgt) {
     $("#orgModal").on("click",".btn-primary", function(){
 
         var isPublic =  $('#customSwitch1').prop("checked");
+        var defaultQueue =  $('#defaultQueue').prop("checked");
+        var jobTimeLimit = $('#jobTimeLimit').val();
 
         var orgsToAdd = [];
         $('#selected_item_options_display').children('a').each(function () {
@@ -303,6 +325,8 @@ if(pgt) {
                 "queue_name":  selected_item_edit.queue_name, 
                 "queue_description": $('#queue_description_tb').val(),
                 "guest_tier":  isPublic,
+                "is_default": defaultQueue,
+                "time_limit_minutes":  jobTimeLimit ? jobTimeLimit : 0,
                 "orgs": orgsToAdd
             }),
             headers: { 
@@ -375,10 +399,24 @@ if(pgt) {
                     <input type="text" class="form-control" id="queue_description_tb" required> 
                 </div>   
                 <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="customSwitch1" style="margin-top: 4px;margin-left: -24px;z-index: 999;">
-                        <label class="custom-control-label" for="customSwitch1">Public queue?</label>            
-                        <small class="text-muted">Public queues are accessible to guest users who do not belong to organizations.</small> 
+                    <input type="checkbox" class="form-check-input" id="defaultQueue" style="margin-top: 4px;margin-left: -24px;z-index: 999;">
+                    <label class="custom-control-label" for="defaultQueue">Default queue?</label>            
+                    <small class="text-muted">The queue to use as a default when no queues are specified.</small> 
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="customSwitch1" style="margin-top: 4px;margin-left: -24px;z-index: 999;">
+                    <label class="custom-control-label" for="customSwitch1">Public queue?</label>            
+                    <small class="text-muted">Public queues are accessible to guest users who do not belong to organizations.</small> 
+                </div>              
+                <div class="form-group">
+                    <label for="jobTimeLimit">Job time limit (in minutes):</label>
+                    <div class="input-group mb-3">
+                    <input type="number" class="form-control" placeholder="Leave blank for unlimited time" aria-label="Leave blank for unlimited time" aria-describedby="basic-addon2" id="jobTimeLimit">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="basic-addon2">minutes</span>
                     </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="selected_queue_org" id="queue_orgs">Organizations:</label> 
                     <select class="form-control" id="selected_queue_org">
