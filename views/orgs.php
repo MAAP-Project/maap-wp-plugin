@@ -183,13 +183,23 @@ if(pgt) {
 				render: function (data, type, row) {
                     var result = '';
 
-                    for(var i = 0; i < row.job_queues.length; i++) {
+                    for(var i = 0; i < Math.min(row.job_queues.length, 3); i++) {
                         if(result)
                             result += ", "
-                        result += row.job_queues[i].queue_name;
+
+                        result += row.job_queues[i].queue_name.replace("maap-dps-", "");
                     }
-					return result;
+
+                    if(row.job_queues.length > 3) {
+                        var remaining = row.job_queues.length - 3;
+                        var tooltip = row.job_queues.reduce((tooltip, item) => 
+                        tooltip += `${item.queue_name}<br />`, '');
+                        result += ' and <b><a href=# class="createdDiv" data-container="body" data-toggle="tooltip" data-placement="top" title="' + tooltip + '" data-html="true">' + remaining + ' more</a></b>';
+                    }
+
+                    return result;
 				},
+                width: '30%',
                 className: 'detail-font'
 			},
 			{
@@ -228,7 +238,7 @@ if(pgt) {
                     if(row.members.length > 3) {
                         var remaining = row.members.length - 3;
                         var tooltip = row.members.reduce((tooltip, item) => 
-                        tooltip += `${item.first_name} ${item.last_name} (${item.username}<br />`, '');
+                        tooltip += `${item.first_name} ${item.last_name} (${item.username})<br />`, '');
                         result += ' and <b><a href=# class="createdDiv" data-container="body" data-toggle="tooltip" data-placement="top" title="' + tooltip + '" data-html="true">' + remaining + (remaining == 1 ? ' other' : ' others</a></b>')
                     }
 

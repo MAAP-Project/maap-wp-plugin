@@ -118,7 +118,7 @@ if(pgt) {
                             if(row_org.members) {         
                                 //orgDetails += "<br>Members";                   
                                 members = row_org.members.reduce((members, item) => 
-                                    members += `${item.first_name} ${item.last_name} (${item.username}<br />`, '');
+                                    members += `${item.first_name} ${item.last_name} (${item.username})<br />`, '');
                                 
                                 orgDetails += "<br>" + members;
                             }
