@@ -120,6 +120,11 @@ function queues_endpoint(){
     wp_send_json($response);
 }
 
+function s3access_endpoint(){
+    $response = maap_admin_ajax_endpoint('admin/s3-access');
+    wp_send_json($response);
+}
+
 function pre_approved_endpoint(){
     $response = maap_admin_ajax_endpoint('admin/pre-approved');
     wp_send_json($response);
@@ -166,7 +171,8 @@ function maap_plugin_load()
     add_action('wp_ajax_users_endpoint', 'users_endpoint'); 
     add_action('wp_ajax_orgs_endpoint', 'orgs_endpoint'); 
     add_action('wp_ajax_queues_endpoint', 'queues_endpoint'); 
-    add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint'); 
+    add_action('wp_ajax_s3access_endpoint', 's3access_endpoint');
+    add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint');
     add_filter('template_include', 'profile_page_template', 99 );
 }
 
@@ -176,6 +182,7 @@ function maap_admin_menu_pages()
     add_submenu_page('maap-admin', 'MAAP Users', 'Users', 'manage_options', 'maap-admin', 'maap_admin_users_callback');
     add_submenu_page('maap-admin', 'MAAP Orgs', 'Organizations', 'manage_options', 'maap-orgs', 'maap_admin_orgs_callback');
     add_submenu_page('maap-admin', 'MAAP Queues', 'Job Queues', 'manage_options', 'maap-queues', 'maap_admin_queues_callback');
+    add_submenu_page('maap-admin', 'MAAP S3 Access', 'S3 Access', 'manage_options', 'maap-s3-access', 'maap_admin_s3access_callback');
     add_submenu_page('maap-admin', 'MAAP Pre-Approved Emails', 'Pre-Approved Emails', 'manage_options', 'maap-pre-approved', 'maap_admin_preappoved_callback');
 }
 
@@ -197,6 +204,11 @@ function maap_admin_queues_callback()
 function maap_admin_preappoved_callback()
 {
     include __DIR__.'/views/pre-approved.php';
+}
+
+function maap_admin_s3access_callback()
+{
+    include __DIR__.'/views/s3_access.php';
 }
 
 function profile_page_template( $template ) {
