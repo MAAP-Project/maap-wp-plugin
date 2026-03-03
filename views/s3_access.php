@@ -46,6 +46,7 @@ select[name="maapusers_length"] {
         <th>Organization</th>
         <th>Bucket Name</th>
         <th>Bucket Prefix</th>
+        <th>Read Only?</th>
         <th>Created</th>
         </thead>
         <tbody></tbody>
@@ -103,6 +104,12 @@ if(pgt) {
                     }
                 },
                 {
+                    data: 'readonly',
+                    render: function (data) {
+                        return data ? 'Yes' : 'No';
+                    }
+                },
+                {
                     data: 'creation_date',
                     render: function (data) {
                         if(data == null)
@@ -143,6 +150,7 @@ if(pgt) {
 
             $('#s3_bucket_name').val(selected_item_edit.bucket_name);
             $('#s3_bucket_prefix').val(selected_item_edit.bucket_prefix || '');
+            $('#s3_readonly').prop("checked", selected_item_edit.readonly);
         } else {
             $('#btnDeleteS3').hide();
             $('#s3ModalHeaderLabel').text('Add S3 Access');
@@ -159,6 +167,7 @@ if(pgt) {
         $('#s3_org_id').prop('selectedIndex', 0);
         $('#s3_bucket_name').val('');
         $('#s3_bucket_prefix').val('');
+        $('#s3_readonly').prop("checked", false);
     }
 
     // Save s3 access entry
@@ -182,7 +191,8 @@ if(pgt) {
             data: JSON.stringify({
                 "org_id": parseInt($('#s3_org_id').val()),
                 "bucket_name": $('#s3_bucket_name').val(),
-                "bucket_prefix": $('#s3_bucket_prefix').val()
+                "bucket_prefix": $('#s3_bucket_prefix').val(),
+                "readonly": $('#s3_readonly').prop("checked")
             }),
             headers: {
                 'cpticket': '<?php echo $pgt ;?>'
@@ -252,6 +262,11 @@ if(pgt) {
                     <label for="s3_bucket_prefix">Bucket prefix:</label>
                     <input type="text" class="form-control" id="s3_bucket_prefix" placeholder="e.g. optional/prefix">
                     <small class="text-muted">Optional path prefix within the bucket.</small>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="s3_readonly" style="margin-top: 4px;margin-left: -24px;z-index: 999;">
+                    <label class="custom-control-label" for="s3_readonly">Read only?</label>
+                    <small class="text-muted">When checked, the organization will have read-only access to this bucket.</small>
                 </div>
             </div>
         <div class="modal-footer">
