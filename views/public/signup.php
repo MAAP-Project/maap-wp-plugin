@@ -19,11 +19,17 @@
 
 $asset_base = plugins_url( 'img', __FILE__ );
 
+// Pair the hub with the web environment from the request host, mirroring how
+// maap.php derives the API host: uat.maap-project.org -> staging hub, else prod.
+$maap_hub_host = ( strpos( $_SERVER['HTTP_HOST'] ?? '', 'uat.' ) !== false )
+    ? 'staging.hub.maap-project.org'
+    : 'hub.maap-project.org';
+
 // CTA targets. Post-CAS these become the Keycloak entry points.
 // hub/oauth_login kicks off EarthData -> Keycloak account creation; a brand-new
 // (role-less) account lands back here at /signup?status=pending (see Phase 3).
-$maap_get_started_url = 'https://hub.maap-project.org/hub/oauth_login';
-$maap_signin_url      = 'https://hub.maap-project.org/hub/oauth_login';
+$maap_get_started_url = "https://{$maap_hub_host}/hub/oauth_login";
+$maap_signin_url      = "https://{$maap_hub_host}/hub/oauth_login";
 
 // This route has no backing WP page, so the main query resolved to a 404.
 // Force a 200 before any markup is emitted.
