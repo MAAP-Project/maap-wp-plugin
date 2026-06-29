@@ -174,6 +174,7 @@ function maap_plugin_load()
     add_action('wp_ajax_s3access_endpoint', 's3access_endpoint');
     add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint');
     add_filter('template_include', 'profile_page_template', 99 );
+    add_filter('template_include', 'signup_page_template', 99 );
 }
 
 function maap_admin_menu_pages()
@@ -218,6 +219,20 @@ function profile_page_template( $template ) {
         if ( '' != $new_template ) {
             return $new_template ;
         }
+    }
+    return $template;
+}
+
+/**
+ * Serve the universal sign-up / request-access page at /signup (and /signup/),
+ * preserving any query string (e.g. /signup?status=pending sent by the hub and
+ * console redirects). Matches the exact path so it won't catch /signups, etc.
+ */
+function signup_page_template( $template ) {
+
+    $path = strtok( $_SERVER['REQUEST_URI'], '?' ); // drop the query string
+    if ( rtrim( $path, '/' ) === '/signup' ) {
+        return __DIR__.'/views/public/signup.php';
     }
     return $template;
 }
