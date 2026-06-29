@@ -221,6 +221,9 @@ if ( ! headers_sent() ) {
     .state-pending { display: none; }
     body[data-state="pending"] .state-new { display: none; }
     body[data-state="pending"] .state-pending { display: block; }
+    /* Once registration is initiated this sub-copy carries the key message,
+       so it reads at full strength (vs .72 opacity in the new-user state). */
+    body[data-state="pending"] .lead-sub { color: #fff; }
 
     @media (max-width: 820px) {
       .split { grid-template-columns: 1fr; gap: 2.25rem; }
