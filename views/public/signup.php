@@ -9,7 +9,7 @@
  * between the main site and signup until the v2 redesign launches. The v2
  * (immersive) version is kept at signup-v2-hi-contrast.php to swap in later.
  *
- * Same behavior as v2: env-aware EarthData CTA, ?status=pending state, and the
+ * Same behavior as v2: env-aware Earthdata Login CTA, ?status=pending state, and the
  * accessibility work (role=list, aria-current, sr-only step states, aria-hidden
  * decorations). CSS is scoped under .maap-signup to avoid theme/Bootstrap
  * collisions; the hero is full-bleed via a 100vw break-out.
@@ -84,9 +84,9 @@ get_header();
 
     /* ───────── "What to expect" ───────── */
     .maap-signup .ms-expect { background:#fff; padding: 32px 20px 68px; }
-    .maap-signup .ms-expect__inner { max-width: 1040px; margin: 0 auto; }
+    .maap-signup .ms-expect__inner { max-width: 1120px; margin: 0 auto; }
     .maap-signup .ms-expect__inner > h2 { text-align:center; color: var(--ink); font-size: 1.75rem; font-weight: 700; margin: 0 0 1.73rem; }
-    .maap-signup .ms-steps { list-style:none; margin:0; padding:0; display:grid; grid-template-columns: repeat(3, 1fr); gap: 2.4rem; }
+    .maap-signup .ms-steps { list-style:none; margin:0; padding:0; display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 2.4rem; align-items: start; }
     .maap-signup .ms-step { text-align:center; }
     .maap-signup .ms-step-num {
       width: 52px; height: 52px; border-radius: 50%; margin: 0 auto .9rem;
@@ -97,8 +97,12 @@ get_header();
     .maap-signup .ms-step.is-current .ms-step-num { background: var(--navy); color:#fff; border-color: var(--navy); box-shadow: 0 0 0 4px rgba(22,53,126,.14); }
     .maap-signup .ms-step.is-done .ms-step-num { background: var(--navy); color:#fff; border-color: var(--navy); }
     .maap-signup .ms-step h3 { font-size: 1.16rem; color: var(--ink); margin: 0 0 .5rem; }
-    .maap-signup .ms-step p { font-family: var(--serif); color: var(--body); font-size: 1rem; line-height: 1.6; margin: 0 auto .5rem; max-width: 30ch; }
+    .maap-signup .ms-step p { font-family: var(--serif); color: var(--body); font-size: 1rem; line-height: 1.6; margin: 0 auto .5rem; max-width: 34ch; }
     .maap-signup .ms-when { font-family: var(--sans); font-style: italic; font-size: .9rem; color: var(--muted); }
+    .maap-signup .ms-communities { margin-top: 1rem; }
+    .maap-signup .ms-communities .lbl { font-family: var(--sans); font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); display:block; margin-bottom: .55rem; }
+    .maap-signup .ms-chips { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; }
+    .maap-signup .ms-chip { font-family: var(--sans); font-size: .92rem; background:#eef1f6; color: var(--navy); border:1px solid #d8dfe8; border-radius:999px; padding:.4rem .9rem; }
     .maap-signup .ms-mailnote { display:flex; align-items:center; justify-content:center; gap:.6rem; margin: 2.8rem auto 0; font-family: var(--sans); color: var(--ink); font-size: 1rem; }
     .maap-signup .ms-mailnote svg { flex:none; }
 
@@ -122,15 +126,15 @@ get_header();
         <div class="ms-state ms-state-new">
           <p class="ms-eyebrow">New to MAAP</p>
           <h1 class="ms-title">Request access to MAAP</h1>
-          <p class="ms-sub">The collaborative NASA–ESA cloud platform where scientists focus on science, not infrastructure. One EarthData sign-in to get started.</p>
-          <a class="ms-btn" href="<?php echo esc_url( $maap_get_started_url ); ?>">Get started with NASA EarthData</a>
+          <p class="ms-sub">The collaborative NASA–ESA cloud platform where scientists focus on science, not infrastructure. One Earthdata Login sign-in to get started.</p>
+          <a class="ms-btn" href="<?php echo esc_url( $maap_get_started_url ); ?>">Get started with Earthdata Login</a>
           <p class="ms-signin">Already approved? <a href="<?php echo esc_url( $maap_signin_url ); ?>">Sign in</a></p>
         </div>
 
         <div class="ms-state ms-state-pending">
           <p class="ms-eyebrow">Registration received</p>
           <h1 class="ms-title">You're in the queue</h1>
-          <p class="ms-sub">Thanks for signing in with NASA EarthData. Your MAAP account is being reviewed — there's nothing more you need to do right now. We'll email you the moment it's approved.</p>
+          <p class="ms-sub">Thanks for signing in with Earthdata Login. Your MAAP account is being reviewed — there's nothing more you need to do right now. We'll email you the moment it's approved.</p>
           <p class="ms-signin">Questions? <a href="mailto:support@maap-project.org">support@maap-project.org</a></p>
         </div>
       </div>
@@ -144,9 +148,15 @@ get_header();
       <ol class="ms-steps" role="list">
         <li class="ms-step s1 is-current" aria-current="step">
           <div class="ms-step-num" aria-hidden="true">1</div>
-          <h3>Sign in with NASA EarthData</h3>
-          <p>Use your existing EarthData (EDL) login, or create one in minutes. You'll accept the one-time MAAP EULA right here during sign-in.</p>
-          <span class="ms-when">~5 min if you're new to EarthData</span>
+          <h3>Sign in with Earthdata Login</h3>
+          <p>Use your existing Earthdata Login account, or create one in minutes. You'll accept the one-time MAAP EULA right here during sign-in.</p>
+          <div class="ms-communities">
+            <span class="lbl">Open to</span>
+            <div class="ms-chips">
+              <span class="ms-chip">NASA-funded researchers</span>
+              <span class="ms-chip">ESA Biomass users</span>
+            </div>
+          </div>
           <span class="ms-tstate ms-sr-only">Current step</span>
         </li>
         <li class="ms-step s2">
