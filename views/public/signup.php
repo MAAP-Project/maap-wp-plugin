@@ -86,7 +86,7 @@ get_header();
     .maap-signup .ms-expect { background:#fff; padding: 32px 20px 68px; }
     .maap-signup .ms-expect__inner { max-width: 1120px; margin: 0 auto; }
     .maap-signup .ms-expect__inner > h2 { text-align:center; color: var(--ink); font-size: 1.75rem; font-weight: 700; margin: 0 0 1.73rem; }
-    .maap-signup .ms-steps { list-style:none; margin:0; padding:0; display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 2.4rem; align-items: start; }
+    .maap-signup .ms-steps { list-style:none; margin:0; padding:0; display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 2.4rem; align-items: start; }
     .maap-signup .ms-step { text-align:center; }
     .maap-signup .ms-step-num {
       width: 52px; height: 52px; border-radius: 50%; margin: 0 auto .9rem;
