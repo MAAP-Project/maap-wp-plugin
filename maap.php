@@ -174,6 +174,11 @@ function maap_plugin_load()
     add_action('wp_ajax_s3access_endpoint', 's3access_endpoint');
     add_action('wp_ajax_preapproved_endpoint', 'pre_approved_endpoint');
     add_filter('template_include', 'profile_page_template', 99 );
+    add_filter('template_include', 'signup_page_template', 99 );
+
+    // Header "Get Started" CTA -> /signup, plus its pill styling.
+    add_filter('wp_nav_menu_items', 'maap_add_get_started_button', 10, 2);
+    add_action('wp_enqueue_scripts', 'maap_get_started_button_styles');
 }
 
 function maap_admin_menu_pages()
@@ -220,6 +225,81 @@ function profile_page_template( $template ) {
         }
     }
     return $template;
+}
+
+/**
+ * Serve the universal sign-up / request-access page at /signup (and /signup/),
+ * preserving any query string (e.g. /signup?status=pending sent by the hub and
+ * console redirects). Matches the exact path so it won't catch /signups, etc.
+ */
+function signup_page_template( $template ) {
+
+    $path = strtok( $_SERVER['REQUEST_URI'], '?' ); // drop the query string
+    if ( rtrim( $path, '/' ) === '/signup' ) {
+        return __DIR__.'/views/public/signup.php';
+    }
+    return $template;
+}
+
+/**
+ * Add a prominent "Get Started" button (linking to /signup) to the site header
+ * menu, positioned immediately AFTER the Login item. Targets the theme's
+ * "primary" nav location (Genesis / Monochrome Pro). home_url() keeps it
+ * env-correct (uat -> uat.maap-project.org).
+ *
+ * We insert after Login (rather than append to the end) because the menu has an
+ * empty account/Profile dropdown that otherwise sits between Login and the
+ * button and opens a gap. The login item carries "menu-item-object-login" and
+ * has no submenu, so the first </li> after it closes it.
+ *
+ * Alternative: add a Custom Link (URL /signup, label "Get Started") in
+ * Appearance > Menus right after Login with the CSS class "maap-get-started";
+ * the styling in maap_get_started_button_styles() applies either way.
+ */
+function maap_add_get_started_button( $items, $args ) {
+    if ( ! isset( $args->theme_location ) || $args->theme_location !== 'primary' ) {
+        return $items;
+    }
+    // Logged-out visitors only — signed-in users don't need a "Get Started" CTA.
+    if ( is_user_logged_in() ) {
+        return $items;
+    }
+    $url    = esc_url( home_url( '/signup' ) );
+    $button = '<li class="menu-item maap-get-started"><a href="' . $url . '">Get Started</a></li>';
+
+    // Insert right after the Login <li>...</li>; fall back to appending.
+    if ( preg_match( '/<li[^>]*menu-item-object-login.*?<\/li>/s', $items, $m ) ) {
+        return str_replace( $m[0], $m[0] . $button, $items );
+    }
+    return $items . $button;
+}
+
+/**
+ * Pill-button styling for the header "Get Started" CTA. Works whether the item
+ * is injected by maap_add_get_started_button() or added as a menu item carrying
+ * the "maap-get-started" CSS class.
+ */
+function maap_get_started_button_styles() {
+    $css = '.maap-get-started > a, .genesis-nav-menu .maap-get-started > a {'
+         . 'display:inline-block;vertical-align:middle;margin-left:20px !important; margin-right:-20px !important;'
+         . 'padding:8px 22px !important;background:#0098db !important;color:#fff !important;'
+         . 'border-radius:999px !important;font-weight:600;line-height:1.2;'
+         . 'text-decoration:none;transition:background .2s ease;}'
+         . '.maap-get-started > a:hover, .genesis-nav-menu .maap-get-started > a:hover {'
+         . 'background:#00549f !important;color:#fff !important;}'
+         // The button now sits right after Login. Strip separators/padding on
+         // BOTH sides so it hugs Login with no stray bar before the account
+         // dropdown that follows. Genesis spaces items via anchor padding, hence
+         // the Login-anchor padding-right trim.
+         . '.maap-get-started{margin-left:0 !important;padding-left:0 !important;border-left:0 !important;border-right:0 !important;}'
+         . '.maap-get-started::before,.maap-get-started::after,.genesis-nav-menu .maap-get-started::before,.genesis-nav-menu .maap-get-started::after{content:none !important;display:none !important;}'
+         . '.maap-get-started + .menu-item::before,.genesis-nav-menu .maap-get-started + .menu-item::before{content:none !important;display:none !important;}'
+         . '.menu-item:has(+ .maap-get-started),.genesis-nav-menu .menu-item:has(+ .maap-get-started){margin-right:0 !important;padding-right:0 !important;border-right:0 !important;}'
+         . '.menu-item:has(+ .maap-get-started) > a,.genesis-nav-menu .menu-item:has(+ .maap-get-started) > a{padding-right:4px !important;}'
+         . '.menu-item:has(+ .maap-get-started)::after,.genesis-nav-menu .menu-item:has(+ .maap-get-started)::after{content:none !important;display:none !important;}';
+    wp_register_style( 'maap-get-started', false );
+    wp_enqueue_style( 'maap-get-started' );
+    wp_add_inline_style( 'maap-get-started', $css );
 }
 
 ?>
