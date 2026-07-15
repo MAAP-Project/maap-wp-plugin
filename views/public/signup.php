@@ -126,7 +126,7 @@ get_header();
         <div class="ms-state ms-state-new">
           <p class="ms-eyebrow">New to MAAP</p>
           <h1 class="ms-title">Request access to MAAP</h1>
-          <p class="ms-sub">The collaborative NASA–ESA cloud platform where scientists focus on science, not infrastructure. One Earthdata Login sign-in to get started.</p>
+          <p class="ms-sub">The collaborative NASA–ESA cloud platform where scientists focus on science, not infrastructure. Open to NASA-Affiliated research and ESA Biomass users.</p>
           <a class="ms-btn" href="<?php echo esc_url( $maap_get_started_url ); ?>">Get started with Earthdata Login</a>
           <p class="ms-signin">Already approved? <a href="<?php echo esc_url( $maap_signin_url ); ?>">Sign in</a></p>
         </div>
@@ -150,13 +150,7 @@ get_header();
           <div class="ms-step-num" aria-hidden="true">1</div>
           <h3>Sign in with Earthdata Login</h3>
           <p>Use your existing Earthdata Login account, or create one in minutes. You'll accept the one-time MAAP EULA right here during sign-in.</p>
-          <div class="ms-communities">
-            <span class="lbl">Open to</span>
-            <div class="ms-chips">
-              <span class="ms-chip">NASA-funded researchers</span>
-              <span class="ms-chip">ESA Biomass users</span>
-            </div>
-          </div>
+          <span class="ms-when">~ 3 minutes</span>
           <span class="ms-tstate ms-sr-only">Current step</span>
         </li>
         <li class="ms-step s2">
