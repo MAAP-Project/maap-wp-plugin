@@ -29,10 +29,19 @@ $maap_hub_host = ( strpos( $_SERVER['HTTP_HOST'] ?? '', 'uat.' ) !== false )
 $maap_get_started_url = "https://{$maap_hub_host}/hub/oauth_login";
 $maap_signin_url      = "https://{$maap_hub_host}/hub/oauth_login";
 
-// /signup has no backing WP page, so the main query resolved to a 404; force 200.
+// /signup has no backing WP page, so the main query resolved to a 404; force 200
+// and clear the 404 state so the <title> isn't rendered as "Page not found".
 if ( ! headers_sent() ) {
     status_header( 200 );
 }
+global $wp_query;
+if ( $wp_query ) {
+    $wp_query->is_404 = false;
+}
+add_filter( 'document_title_parts', function ( $parts ) {
+    $parts['title'] = 'MAAP Sign Up';
+    return $parts;
+} );
 
 get_header();
 ?>
