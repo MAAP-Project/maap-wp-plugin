@@ -20,60 +20,56 @@ Author: Brian Satorius & Anil Natha
 define( 'MAX_SESSION_DURATION', 24*60*60); // value should be in seconds
 
 ################################################################################
-/**
- * Create a session so that when authn/authz occurs, it can be used to store CAS information
- */
-
-if (!session_id()) {
-    session_start();
-}
-
-################################################################################
 
 function my_expiration_filter($seconds, $user_id, $remember){
     return constant("MAX_SESSION_DURATION");
 }
 
-function maap_login( $user_login, $user ) {
+################################################################################
+/**
+ * Keycloak OIDC login glue (replaces the legacy CAS phpCAS session harvest).
+ *
+ * Authentication is performed by the "OpenID Connect Generic Client"
+ * (daggerhart) plugin against the MAAP Keycloak realm, which brokers NASA
+ * Earthdata Login. After a successful login we mint the same two cookies the
+ * platform has always used, but the credential is now a Keycloak access token
+ * with the 'jwt:' prefix — the MAAP API accepts it on both the server-side
+ * 'proxy-ticket' header and the browser-side 'cpticket' header, so all
+ * downstream API plumbing is unchanged.
+ */
 
-    // Uncomment the following line to inspect cookie and session information
-    // upon login
-    //maap_debug_wp_session();
+// Option key where OpenID Connect Generic stores the last token response.
+// NOTE: the plugin saves it with update_user_option(), which prefixes the
+// underlying meta key with the blog's table prefix — so it MUST be read back
+// with get_user_option() (get_user_meta() on this name returns nothing).
+define( 'MAAP_OIDC_TOKEN_META', 'openid-connect-generic-last-token-response' );
 
-    $cookie_exp = time()+constant("MAX_SESSION_DURATION");
+function maap_set_auth_cookies( $access_token ) {
+    $cookie_exp = time() + constant("MAX_SESSION_DURATION");
+    setcookie( 'wp_maap_pgt', 'jwt:' . $access_token, $cookie_exp, '/' );
+    // Keycloak brokers Earthdata Login only; the legacy ESA (GLUU) path
+    // retired with the CAS service.
+    setcookie( 'wp_maap_client_name', 'URS', $cookie_exp, '/' );
+}
 
-    // ========================================
-    // Set PGT Cookie
+/**
+ * Fires on the OIDC plugin's post-login action with the WP_User.
+ */
+function maap_oidc_login( $user ) {
+    $token_response = get_user_option( MAAP_OIDC_TOKEN_META, $user->ID );
 
-    $maap_pgt_cookie = 'wp_maap_pgt';
-
-    if(isset($_COOKIE[$maap_pgt_cookie])) {
-        unset($_COOKIE[$maap_pgt_cookie]);
+    if ( is_array( $token_response ) && ! empty( $token_response['access_token'] ) ) {
+        maap_set_auth_cookies( $token_response['access_token'] );
     }
+}
 
-    setcookie(
-        $maap_pgt_cookie,
-        $_SESSION['phpCAS']['pgt'],
-        $cookie_exp
-    );
-
-    // ========================================
-    // Set ClientName Cookie
-
-    $maap_client_name_cookie = 'wp_maap_client_name';
-
-    if(isset($_COOKIE[$maap_client_name_cookie])) {
-        unset($_COOKIE[$maap_client_name_cookie]);
-    }
-
-    $client_name = array_key_exists('iss', $_SESSION['phpCAS']['attributes']) ? 'GLUU' : 'URS';
-
-    setcookie(
-        $maap_client_name_cookie,
-        $client_name,
-        $cookie_exp
-    );
-
+/**
+ * Clear the MAAP API cookies on WP logout (the OIDC plugin's end-session
+ * setting handles the Keycloak RP-initiated logout).
+ */
+function maap_logout() {
+    setcookie( 'wp_maap_pgt', '', time() - 3600, '/' );
+    setcookie( 'wp_maap_client_name', '', time() - 3600, '/' );
 }
 
 function maap_debug_wp_session() {
@@ -84,16 +80,6 @@ function maap_debug_wp_session() {
     echo '$_SESSION: <pre>';
     echo var_dump($_SESSION);
     echo "</pre>";
-
-    echo '$_SESSION COOKIE INFO:';
-    echo "<pre>";
-    echo 'session_name(): ' . session_name() . "\n";
-    echo 'session_id(): ' . session_id() . "\n";
-    echo "</pre>";
-
-    $proxyTicketDec = $_SESSION['phpCAS']['pgt'];
-
-    echo 'proxyTicketDec: ' . $proxyTicketDec . "\n";
 
     exit();
     die();
@@ -161,9 +147,12 @@ function maap_admin_ajax_endpoint($endpoint){
 add_action('plugins_loaded', 'maap_plugin_load');
 function maap_plugin_load()
 {
-    // Hook into login chain to initialize cookie upon successful login
+    // Hook into login chain to initialize cookies upon successful login.
+    // Login itself is handled by the OpenID Connect Generic Client plugin
+    // (Keycloak/Earthdata Login); we mint the MAAP API cookies after it.
     add_filter('auth_cookie_expiration', 'my_expiration_filter', 99, 3);
-    add_action('wp_login', 'maap_login', 10, 2);
+    add_action('openid-connect-generic-user-logged-in', 'maap_oidc_login');
+    add_action('wp_logout', 'maap_logout');
 
     // Hooks to display Administrative pages in Wordpress Dashboard
     add_action('admin_menu', 'maap_admin_menu_pages');

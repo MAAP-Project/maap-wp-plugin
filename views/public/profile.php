@@ -22,9 +22,7 @@ $wp_maap_client_name = 'wp_maap_client_name';
 $client = $_COOKIE[$wp_maap_client_name] ? $_COOKIE[$wp_maap_client_name] : "UNKNOWN";
 $client_name = "Unknown";
 if( strtoupper($client) == "URS" ) {
-    $client_name = "EarthData (URS)";
-} elseif ( strtoupper($client) == "GLUU" ) {
-    $client_name = "ESA (Gluu)";
+    $client_name = "Earthdata Login (URS)";
 }
 
 // Set API variables
@@ -58,11 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $json = json_decode($result);
 
-    $ssh_key_name = $json->public_ssh_key_name;
-    $ssh_key_dt = $json->public_ssh_key_modified_date;
+    if (is_object($json)) {
+        $ssh_key_name = $json->public_ssh_key_name;
+        $ssh_key_dt = $json->public_ssh_key_modified_date;
+    }
 
     curl_close($ch);
-    
+
 } elseif (isset($_GET['del'])) {
     $ch = curl_init();
 
@@ -80,8 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $json = json_decode($result);
 
-    $ssh_key_name = $json->public_ssh_key_name;
-    $ssh_key_dt = $json->public_ssh_key_modified_date;
+    if (is_object($json)) {
+        $ssh_key_name = $json->public_ssh_key_name;
+        $ssh_key_dt = $json->public_ssh_key_modified_date;
+    }
 
     curl_close($ch);
 }
@@ -100,14 +102,20 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 $result = curl_exec($ch);
 $json = json_decode($result);
 
-$ssh_key_name = $json->public_ssh_key_name;
-$ssh_key_dt = $json->public_ssh_key_modified_date;
-$first_name = $json->first_name;
-$last_name = $json->last_name;
-$status = $json->status;
-$email = $json->email;
-$username = $json->username;
-$organization = $json->organization;
+// A brand-new user may not have a MAAP member record yet (the API returns
+// 404 "No MAAP member record" until registration completes).
+$member_found = is_object($json) && !empty($json->username);
+
+if ($member_found) {
+    $ssh_key_name = $json->public_ssh_key_name;
+    $ssh_key_dt = $json->public_ssh_key_modified_date;
+    $first_name = $json->first_name;
+    $last_name = $json->last_name;
+    $status = $json->status;
+    $email = $json->email;
+    $username = $json->username;
+    $organization = $json->organization;
+}
 
 curl_close($ch);
 
@@ -117,7 +125,14 @@ curl_close($ch);
     <main id="genesis-content" class="content">
 
         <div class="entry-content" itemprop="text">
-            <?php if ($pgt) { ?>
+            <?php if ($pgt && !$member_found) { ?>
+                <h1>Profile</h1>
+                <p>We couldn't find a MAAP account registration for you yet.
+                   If you just signed in for the first time, your registration is
+                   still being set up — try refreshing this page in a moment.
+                   Otherwise, <a href="/signup">get started</a> or contact
+                   <a href="mailto:support@maap-project.org">support@maap-project.org</a>.</p>
+            <?php } elseif ($pgt) { ?>
                 <form name="file_up" id="file_up" action="" method="POST" enctype="multipart/form-data">
                     
                     <h1>Profile</h1>
@@ -172,11 +187,6 @@ curl_close($ch);
                                             $profile_url = "https://uat.urs.earthdata.nasa.gov"; // DIT environment
                                         }
 
-                                    } elseif ( strtoupper($client) === "GLUU" ) {
-
-                                        // Only one environment for ESA at the moment
-                                        $profile_url = "https://iam.val.esa-maap.org";
-
                                     }
 
                                     echo 'To update your MAAP profile, simply update your <a href="' . $profile_url . '">' . $client_name . ' Profile</a> and the next time you login to MAAP, your MAAP profile will be synchronized with your ' . $client_name . ' profile.';
@@ -212,8 +222,11 @@ curl_close($ch);
  
 <script>
 
-    document.getElementById("file_upl").onchange = function() {
-        document.getElementById("file_up").submit();
+    var maapFileUpl = document.getElementById("file_upl");
+    if (maapFileUpl) {
+        maapFileUpl.onchange = function() {
+            document.getElementById("file_up").submit();
+        };
     }
 
 </script>
